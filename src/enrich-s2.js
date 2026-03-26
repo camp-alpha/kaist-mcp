@@ -17,23 +17,30 @@ const S2_API = "https://api.semanticscholar.org/graph/v1";
 function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 
 async function searchAuthor(name, dept) {
-  const query = encodeURIComponent(`${name} KAIST`);
+  const query = encodeURIComponent(name);
   try {
     const res = await fetch(
-      `${S2_API}/author/search?query=${query}&limit=3&fields=name,affiliations,paperCount,hIndex,url`,
+      `${S2_API}/author/search?query=${query}&limit=5&fields=name,affiliations,paperCount,hIndex,url`,
       { headers: { "User-Agent": "KaistMCP/0.1" } }
     );
+    if (res.status === 429) {
+      console.log("    S2 rate limited, waiting 30s...");
+      await sleep(30000);
+      return null;
+    }
     if (!res.ok) return null;
     const data = await res.json();
-    // KAIST 소속인 저자 찾기
-    for (const author of (data.data || [])) {
+    if (!data.data || data.data.length === 0) return null;
+
+    // KAIST 소속 우선
+    for (const author of data.data) {
       const affs = (author.affiliations || []).join(" ").toLowerCase();
       if (affs.includes("kaist") || affs.includes("korea advanced")) {
         return author;
       }
     }
-    // 소속 불명이면 첫 번째 반환
-    return data.data?.[0] || null;
+    // 논문 많은 첫 번째 (동명이인 대비)
+    return data.data[0].paperCount > 5 ? data.data[0] : null;
   } catch { return null; }
 }
 
