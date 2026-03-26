@@ -1,0 +1,20 @@
+{
+  "name": "@camp-alpha/kaist-mcp",
+  "version": "0.1.0",
+  "description": "KAIST university research lab MCP server — professors, labs, papers, research areas",
+  "type": "module",
+  "bin": {
+    "kaist-mcp": "./src/index.js"
+  },
+  "scripts": {
+    "start": "node src/index.js",
+    "build-data": "node src/scraper.js"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0",
+    "cheerio": "^1.0.0",
+    "node-fetch": "^3.3.0"
+  },
+  "keywords": ["mcp", "kaist", "university", "research", "labs"],
+  "license": "MIT"
+}
